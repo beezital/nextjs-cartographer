@@ -3,9 +3,6 @@
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
 
-// https://geoservices.ign.fr/documentation/services/utilisation-web/extension-pour-leaflet#appel-de-lextension-dans-un-module-es6
-// import L from "leaflet";
-// import { LExtended } from "geoportal-extensions-leaflet";
 
 import { useEffect } from "react";
 
@@ -14,23 +11,17 @@ export default function Home() {
 
   useEffect(() => {
     async function initMap() {
-      // const L = (await import("leaflet")).default;
-      const Gp = (await import("geoportal-extensions-leaflet"));
+      const L = (await import("leaflet")).default;
 
-      const map = Gp.LExtended.map('map').setView([48, 7], 13);
+      const map = L.map('map').setView([48.25, 7.35], 13);
 
-      // Gp.LExtended.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      //   maxZoom: 19,
-      //   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      // }).addTo(map);
-
-      // const lyr = Gp.LExtended.geoportalLayer.WMTS({
-      //   layer: "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2"
-      // });
-      // lyr.addTo(map);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 20,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
 
       // https://geoservices.ign.fr/documentation/services/utilisation-web/affichage-wmts/leaflet-et-wmts
-      Gp.LExtended.tileLayer(
+      L.tileLayer(
         "https://data.geopf.fr/wmts?" +
         "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
         "&STYLE=normal" +
