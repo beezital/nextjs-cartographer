@@ -22,8 +22,11 @@ export default function Home() {
 
   return (
     <>
-      <h1>Leaflet test</h1>
-      <div id="map" style={{ height: "500px", width: "100%" }}></div>
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+        <h1>Leaflet test</h1>
+        {/* <div style={{ flexGrow: 1, border: "1px solid red" }}></div> */}
+        <div id="map" style={{ flexGrow: 1 }}></div>
+      </div>
     </>
   );
 }
