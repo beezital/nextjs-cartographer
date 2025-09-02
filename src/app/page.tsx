@@ -1,22 +1,31 @@
 "use client";
 
+import { LatLng } from 'leaflet';
+
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
 
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function Home() {
+function Coordinates({ latLong }:{latLong: LatLng}) {
+  return (
+    <div>
+      <p>Latitude: {latLong.lat}</p>
+      <p>Longitude: {latLong.lng}</p>
+    </div>
+  );
+}
 
-
+function Map({ onMove }: { onMove: (latLong: LatLng) => void }) {
   useEffect(() => {
     async function initMap() {
       const L = (await import("leaflet")).default;
 
-      const map = L.map('map').setView([48.25, 7.35], 13);
+      const map = L.map('map').setView([48.26, 7.45], 13);
 
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 20,
+        maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       }).addTo(map);
 
@@ -41,17 +50,35 @@ export default function Home() {
         }
       ).addTo(map);
 
+      map.on('move', function (e) {
+        const center = map.getCenter();
+        onMove(center);
+      });
+
     }
 
     initMap();
   }, []);
 
   return (
+    <div id="map" style={{ flexGrow: 1 }}></div>
+  )
+}
+
+export default function Home() {
+
+  const [latLong, setLatLong] = useState<LatLng | null>(null);
+
+  function onMove(toLatLong: LatLng) {
+    setLatLong(toLatLong);
+  }
+
+  return (
     <>
       <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
         <h1>Leaflet test</h1>
-        {/* <div style={{ flexGrow: 1, border: "1px solid red" }}></div> */}
-        <div id="map" style={{ flexGrow: 1 }}></div>
+        { latLong && <Coordinates latLong={latLong} /> }
+        <Map onMove={onMove} />
       </div>
     </>
   );
