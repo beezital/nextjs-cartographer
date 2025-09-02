@@ -1,6 +1,7 @@
 "use client";
 
-import { LatLng } from 'leaflet';
+import TextField from '@mui/material/TextField';
+import { LatLng, Map as LeafletMap } from 'leaflet';
 
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
@@ -8,12 +9,12 @@ import 'leaflet/dist/leaflet.css';
 
 import { useEffect, useState } from "react";
 
-function Coordinates({ latLong }:{latLong: LatLng}) {
+function Coordinates({ latLong }: { latLong: LatLng }) {
+
+  const latLongString = `${latLong.lat}, ${latLong.lng}`;
+
   return (
-    <div>
-      <p>Latitude: {latLong.lat}</p>
-      <p>Longitude: {latLong.lng}</p>
-    </div>
+    <TextField id="outlined-basic" label="Coordinates (Latitude, Longitude)" variant="outlined" value={latLongString} />
   );
 }
 
@@ -51,18 +52,25 @@ function Map({ onMove }: { onMove: (latLong: LatLng) => void }) {
       ).addTo(map);
 
       map.on('move', function (e) {
-        const center = map.getCenter();
-        onMove(center);
+        mapDidMove(map);
       });
 
+      mapDidMove(map);
+
+      function mapDidMove(map: LeafletMap) {
+        const center = map.getCenter();
+        onMove(center);
+      }
     }
 
     initMap();
+
   }, []);
 
   return (
     <div id="map" style={{ flexGrow: 1 }}></div>
   )
+
 }
 
 export default function Home() {
@@ -76,8 +84,10 @@ export default function Home() {
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-        <h1>Leaflet test</h1>
-        { latLong && <Coordinates latLong={latLong} /> }
+        <div style={{ display: "flex", flexDirection: "column", gap: "1em", padding: "1em" }}>
+          <h1>Leaflet test</h1>
+          {latLong && <Coordinates latLong={latLong} />}
+        </div>
         <Map onMove={onMove} />
       </div>
     </>
