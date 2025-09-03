@@ -7,12 +7,20 @@ import type { LatLngLiteral, Map as LeafletMap } from 'leaflet';
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
 
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+
+const COORDINATES_PRECISION = 1000000;
 
 
 function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap: (latLong: LatLngLiteral) => void }) {
 
-  const latLongString = `${latLong.lat}, ${latLong.lng}`;
+  function roundCoordinate(coord: number) {
+    return Math.round(coord * COORDINATES_PRECISION) / COORDINATES_PRECISION;
+  }
+  const lat = roundCoordinate(latLong.lat);
+  const lng = roundCoordinate(latLong.lng);
+  const latLongString = `${lat}, ${lng}`;
 
   const [coordinates, setCoordinates] = useState(latLongString);
 
@@ -24,8 +32,12 @@ function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap
   function go(formData: FormData) {
     console.log("Form submitted:", formData.keys().toArray());
     const newCoordinates = formData.get("coordinates")?.toString() || "";
-    const [lat, lng] = newCoordinates.split(",").map(Number);
+    let [lat, lng] = newCoordinates.split(",").map(Number);
     if (!isNaN(lat) && !isNaN(lng)) {
+      console.log("Parsed coordinates:", lat, lng);
+      lat = roundCoordinate(lat);
+      lng = roundCoordinate(lng);
+      console.log("Parsed coordinates rounded:", lat, lng);
       const center: LatLngLiteral = { lat, lng };
       centerMap(center);
     }
@@ -34,6 +46,7 @@ function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap
   return (
     <form action={go}>
       <TextField
+        style={{ width: "100%" }}
         id='coordinates-input'
         label="Coordinates (Latitude, Longitude)"
         variant="outlined"
@@ -42,14 +55,14 @@ function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setCoordinates(event.target.value);
         }}
-      // https://mui.com/material-ui/react-text-field/#input-adornments
-      slotProps={{
-        input: {
-          endAdornment: <InputAdornment position="end">
-            <Button variant='contained' type='submit'>Go</Button>
-          </InputAdornment>
-        }
-      }}
+        // https://mui.com/material-ui/react-text-field/#input-adornments
+        slotProps={{
+          input: {
+            endAdornment: <InputAdornment position="end">
+              <Button variant='contained' type='submit'>Go</Button>
+            </InputAdornment>
+          }
+        }}
       />
     </form>
   );
@@ -98,7 +111,7 @@ export default function Home() {
         }
       ).addTo(map);
 
-      map.on('move', function (e) {
+      map.on('move', function () {
         mapDidMove(map);
       });
 
