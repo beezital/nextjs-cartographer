@@ -81,18 +81,15 @@ export default function Home() {
     async function initMap() {
       const L = (await import("leaflet")).default;
 
-      const map = L.map('map').setView([48.26, 7.45], 13);
-      mapRef.current = map;
-
-      // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      //   maxZoom: 19,
-      //   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      // }).addTo(map);
+      const layerOSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      });
 
       // https://geoservices.ign.fr/documentation/services/utilisation-web/affichage-wmts/leaflet-et-wmts
       // https://geoservices.ign.fr/services-web-essentiels
       // https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities
-      L.tileLayer(
+      const layerIGNv2 = L.tileLayer(
         "https://data.geopf.fr/wmts?" +
         "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
         "&STYLE=normal" +
@@ -110,15 +107,31 @@ export default function Home() {
           attribution: "IGN-F/Geoportail",
           tileSize: 256 // les tuiles du Géooportail font 256x256px
         }
-      ).addTo(map);
+      );
 
-      L.tileLayer(
+      const layerSatellite = L.tileLayer(
         "https://data.geopf.fr/wmts?" +
         "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
         "&STYLE=normal" +
         "&TILEMATRIXSET=PM" +
-        // "&FORMAT=image/jpeg" +
-        // "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS" +
+        "&FORMAT=image/jpeg" +
+        "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS" +
+        "&TILEMATRIX={z}" +
+        "&TILEROW={y}" +
+        "&TILECOL={x}",
+        {
+          minZoom: 0,
+          maxZoom: 19,
+          attribution: "IGN-F/Geoportail",
+          tileSize: 256 // les tuiles du Géooportail font 256x256px
+        }
+      );
+
+      const layerDFCI = L.tileLayer(
+        "https://data.geopf.fr/wmts?" +
+        "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+        "&STYLE=normal" +
+        "&TILEMATRIXSET=PM" +
         "&FORMAT=image/png" +
         "&LAYER=GEOGRAPHICALGRIDSYSTEM.DFCI" +
         "&TILEMATRIX={z}" +
@@ -126,17 +139,37 @@ export default function Home() {
         "&TILECOL={x}",
         {
           minZoom: 0,
-          maxZoom: 18,
+          maxZoom: 16,
           attribution: "IGN-F/Geoportail",
           tileSize: 256 // les tuiles du Géooportail font 256x256px
         }
-      ).addTo(map);
+      );
+
+      const map = L.map('map', {
+        center: [48.26, 7.45],
+        zoom: 13,
+        layers: [layerIGNv2]
+      });
+      mapRef.current = map;
+
+      const baseMaps = {
+        "IGNv2": layerIGNv2,
+        "OpenStreetMap": layerOSM
+      };
+
+      const overlayMaps = {
+        "Satellite": layerSatellite,
+        "DFCI": layerDFCI
+      };
+
+      const layerControl = L.control.layers(baseMaps, overlayMaps);
+      layerControl.addTo(map);
 
       map.on('move', function () {
         mapDidMove(map);
       });
 
-      // mapDidMove(map);
+      mapDidMove(map);
 
       function mapDidMove(map: LeafletMap) {
         const center = map.getCenter();
