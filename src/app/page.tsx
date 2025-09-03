@@ -1,29 +1,61 @@
 "use client";
 
+import { Button, InputAdornment } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { LatLng, Map as LeafletMap } from 'leaflet';
+import type { LatLngLiteral, Map as LeafletMap } from 'leaflet';
 
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
 
+import { useEffect, useRef, useState } from "react";
 
-import { useEffect, useState } from "react";
 
-function Coordinates({ latLong }: { latLong: LatLng }) {
+function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap: (latLong: LatLngLiteral) => void }) {
 
   const latLongString = `${latLong.lat}, ${latLong.lng}`;
 
   return (
-    <TextField id="outlined-basic" label="Coordinates (Latitude, Longitude)" variant="outlined" value={latLongString} />
+    <TextField
+      id='coordinates-input'
+      label="Coordinates (Latitude, Longitude)"
+      variant="outlined"
+      value={latLongString}
+      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+        const [lat, lng] = event.target.value.split(",").map(Number);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const center: LatLngLiteral = { lat, lng };
+          centerMap(center);
+        }
+      }}
+      // https://mui.com/material-ui/react-text-field/#input-adornments
+      slotProps={{
+        input: {
+          endAdornment: <InputAdornment position="end">
+            <Button variant='contained'>Go</Button>
+          </InputAdornment>
+        }
+      }}
+    />
+
   );
 }
 
-function Map({ onMove }: { onMove: (latLong: LatLng) => void }) {
+function Map() {
+  return (
+    <div id="map" style={{ flexGrow: 1 }}></div>
+  )
+}
+
+export default function Home() {
+
+  const mapRef = useRef<LeafletMap | null>(null);
+
   useEffect(() => {
     async function initMap() {
       const L = (await import("leaflet")).default;
 
       const map = L.map('map').setView([48.26, 7.45], 13);
+      mapRef.current = map;
 
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -55,7 +87,7 @@ function Map({ onMove }: { onMove: (latLong: LatLng) => void }) {
         mapDidMove(map);
       });
 
-      mapDidMove(map);
+      // mapDidMove(map);
 
       function mapDidMove(map: LeafletMap) {
         const center = map.getCenter();
@@ -67,18 +99,18 @@ function Map({ onMove }: { onMove: (latLong: LatLng) => void }) {
 
   }, []);
 
-  return (
-    <div id="map" style={{ flexGrow: 1 }}></div>
-  )
+  const [latLong, setLatLong] = useState<LatLngLiteral | null>(null);
 
-}
-
-export default function Home() {
-
-  const [latLong, setLatLong] = useState<LatLng | null>(null);
-
-  function onMove(toLatLong: LatLng) {
+  function onMove(toLatLong: LatLngLiteral) {
     setLatLong(toLatLong);
+  }
+
+  function centerMap(toLatLong: LatLngLiteral) {
+    console.log("New center:", toLatLong);
+    if (mapRef.current) {
+      mapRef.current.setView(toLatLong);
+      setLatLong(toLatLong);
+    }
   }
 
   return (
@@ -86,9 +118,9 @@ export default function Home() {
       <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1em", padding: "1em" }}>
           <h1>Leaflet test</h1>
-          {latLong && <Coordinates latLong={latLong} />}
+          {latLong && <Coordinates latLong={latLong} centerMap={centerMap} />}
         </div>
-        <Map onMove={onMove} />
+        <Map />
       </div>
     </>
   );
