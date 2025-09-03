@@ -7,36 +7,51 @@ import type { LatLngLiteral, Map as LeafletMap } from 'leaflet';
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
 
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 
 
 function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap: (latLong: LatLngLiteral) => void }) {
 
   const latLongString = `${latLong.lat}, ${latLong.lng}`;
 
+  const [coordinates, setCoordinates] = useState(latLongString);
+
+  useEffect(() => {
+    console.log("Coordinates updated:", latLongString);
+    setCoordinates(latLongString);
+  }, [latLongString]);
+
+  function go(formData: FormData) {
+    console.log("Form submitted:", formData.keys().toArray());
+    const newCoordinates = formData.get("coordinates")?.toString() || "";
+    const [lat, lng] = newCoordinates.split(",").map(Number);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      const center: LatLngLiteral = { lat, lng };
+      centerMap(center);
+    }
+  }
+
   return (
-    <TextField
-      id='coordinates-input'
-      label="Coordinates (Latitude, Longitude)"
-      variant="outlined"
-      value={latLongString}
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        const [lat, lng] = event.target.value.split(",").map(Number);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          const center: LatLngLiteral = { lat, lng };
-          centerMap(center);
-        }
-      }}
+    <form action={go}>
+      <TextField
+        id='coordinates-input'
+        label="Coordinates (Latitude, Longitude)"
+        variant="outlined"
+        name="coordinates"
+        value={coordinates}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setCoordinates(event.target.value);
+        }}
       // https://mui.com/material-ui/react-text-field/#input-adornments
       slotProps={{
         input: {
           endAdornment: <InputAdornment position="end">
-            <Button variant='contained'>Go</Button>
+            <Button variant='contained' type='submit'>Go</Button>
           </InputAdornment>
         }
       }}
-    />
-
+      />
+    </form>
   );
 }
 
