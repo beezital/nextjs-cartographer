@@ -25,7 +25,6 @@ function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap
   const [coordinates, setCoordinates] = useState(latLongString);
 
   useEffect(() => {
-    console.log("Coordinates updated:", latLongString);
     setCoordinates(latLongString);
   }, [latLongString]);
 
@@ -85,12 +84,14 @@ export default function Home() {
       const map = L.map('map').setView([48.26, 7.45], 13);
       mapRef.current = map;
 
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(map);
+      // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      //   maxZoom: 19,
+      //   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      // }).addTo(map);
 
       // https://geoservices.ign.fr/documentation/services/utilisation-web/affichage-wmts/leaflet-et-wmts
+      // https://geoservices.ign.fr/services-web-essentiels
+      // https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities
       L.tileLayer(
         "https://data.geopf.fr/wmts?" +
         "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
@@ -100,6 +101,26 @@ export default function Home() {
         // "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS" +
         "&FORMAT=image/png" +
         "&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2" +
+        "&TILEMATRIX={z}" +
+        "&TILEROW={y}" +
+        "&TILECOL={x}",
+        {
+          minZoom: 0,
+          maxZoom: 18,
+          attribution: "IGN-F/Geoportail",
+          tileSize: 256 // les tuiles du Géooportail font 256x256px
+        }
+      ).addTo(map);
+
+      L.tileLayer(
+        "https://data.geopf.fr/wmts?" +
+        "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+        "&STYLE=normal" +
+        "&TILEMATRIXSET=PM" +
+        // "&FORMAT=image/jpeg" +
+        // "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS" +
+        "&FORMAT=image/png" +
+        "&LAYER=GEOGRAPHICALGRIDSYSTEM.DFCI" +
         "&TILEMATRIX={z}" +
         "&TILEROW={y}" +
         "&TILECOL={x}",
