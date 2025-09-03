@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, InputAdornment } from '@mui/material';
+import { ExploreOutlined } from '@mui/icons-material';
 import TextField from '@mui/material/TextField';
 import type { LatLngLiteral, Map as LeafletMap } from 'leaflet';
 
@@ -69,7 +70,12 @@ function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap
 
 function Map() {
   return (
-    <div id="map" style={{ flexGrow: 1 }}></div>
+    <div style={{ position: "relative", flexGrow: 1 }}>
+      <div id="map" style={{ width: "100%", height: "100%" }}></div>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 500, display: "flex", gap: "1em", padding: "1em", justifyContent: "center" }}>
+        <Button variant="contained" startIcon={<ExploreOutlined />}>GPS</Button>
+      </div>
+    </div>
   )
 }
 
@@ -169,7 +175,27 @@ export default function Home() {
         mapDidMove(map);
       });
 
-      mapDidMove(map);
+      // https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API
+      if ("geolocation" in navigator) {
+        /* geolocation is available */
+        console.log("Geolocation is available");
+        navigator.geolocation.getCurrentPosition(function (position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          console.log("Current position:", lat, lng);
+
+          const currentPosition = L.marker([lat, lng]).bindPopup('You are here');
+          currentPosition.addTo(map);
+
+          centerMap({ lat, lng });
+        }, function (error) {
+          console.error("Error getting geolocation:", error);
+        });
+      } else {
+        /* geolocation IS NOT available */
+        console.log("Geolocation is NOT available");
+        mapDidMove(map);
+      }
 
       function mapDidMove(map: LeafletMap) {
         const center = map.getCenter();
