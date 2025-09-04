@@ -80,9 +80,20 @@ function Map() {
   const { addError } = useContext(AlertsContext);
 
   useEffect(() => {
+    console.log("about to init map (check strict mode double call)");
     if (mapContainerRef.current) {
       initMap(mapContainerRef.current, addError);
     }
+    /*
+    // Cleanup function needed?
+    return () => {
+      console.log("about to cleanup map");
+      if (mapContainerRef.current) {
+        mapContainerRef.current.remove();
+        mapContainerRef.current = null;
+      }
+    };
+    */
   }, [initMap, addError]);
 
 
