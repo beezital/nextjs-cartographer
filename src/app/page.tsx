@@ -19,18 +19,18 @@ const COORDINATES_PRECISION = 1000000;
 
 function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap: (latLong: LatLngLiteral) => void }) {
 
+  const [coordinates, setCoordinates] = useState("");
+
+  useEffect(() => {
+    const lat = roundCoordinate(latLong.lat);
+    const lng = roundCoordinate(latLong.lng);
+    const latLongString = `${lat}, ${lng}`;
+    setCoordinates(latLongString);
+  }, [latLong]);
+
   function roundCoordinate(coord: number) {
     return Math.round(coord * COORDINATES_PRECISION) / COORDINATES_PRECISION;
   }
-  const lat = roundCoordinate(latLong.lat);
-  const lng = roundCoordinate(latLong.lng);
-  const latLongString = `${lat}, ${lng}`;
-
-  const [coordinates, setCoordinates] = useState(latLongString);
-
-  useEffect(() => {
-    setCoordinates(latLongString);
-  }, [latLongString]);
 
   function go(formData: FormData) {
     console.log("Form submitted:", formData.keys().toArray());
