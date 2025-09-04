@@ -92,7 +92,7 @@ function Map() {
   )
 }
 
-export function AlertList() {
+function AlertList() {
 
   const { alerts, removeAlert } = useContext(AlertsContext);
 
