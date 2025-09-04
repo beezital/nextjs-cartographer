@@ -55,7 +55,7 @@ export function useLeafletHelper() {
         }
     }, [mapDidMove, centerMapOn, mapRef]);
 
-    const initMap = useCallback(async (onError: ((error: string) => void) = () => { }) => {
+    const initMap = useCallback(async (mapContainerDiv: HTMLDivElement, onError: ((error: string) => void) = () => { }) => {
         const L = (await import("leaflet")).default;
 
         const layerOSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -122,7 +122,7 @@ export function useLeafletHelper() {
             }
         );
 
-        const map = L.map('map', {
+        const map = L.map(mapContainerDiv, {
             center: [48.26, 7.45],
             zoom: 13,
             layers: [layerIGNv2]
