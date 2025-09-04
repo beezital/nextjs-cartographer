@@ -70,7 +70,10 @@ function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap
   );
 }
 
-function Map({ centerMapOnCurrentPosition }: { centerMapOnCurrentPosition: () => void }) {
+function Map() {
+
+  const { centerMapOnCurrentPosition } = useLeafletHelper();
+
   return (
     <div style={{ position: "relative", flexGrow: 1 }}>
       <div id="map" style={{ width: "100%", height: "100%" }}></div>
@@ -83,34 +86,12 @@ function Map({ centerMapOnCurrentPosition }: { centerMapOnCurrentPosition: () =>
 
 export default function Home() {
 
-  const { mapCenterLatLong, initMap, centerMapOn } = useLeafletHelper();
+  const { mapRef, mapCenterLatLong, initMap, mapDidMove, centerMapOn } = useLeafletHelper();
 
   useEffect(() => {
     initMap();
-    centerMapOnCurrentPosition();
   }, []);
 
-
-  function centerMapOnCurrentPosition() {
-    // https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API
-    if ("geolocation" in navigator) {
-      /* geolocation is available */
-      console.log("Geolocation is available");
-      navigator.geolocation.getCurrentPosition(function (position) {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        console.log("Current position:", lat, lng);
-
-        centerMapOn({ lat, lng });
-      }, function (error) {
-        console.error("Error getting geolocation:", error);
-      });
-    } else {
-      /* geolocation IS NOT available */
-      console.log("Geolocation is NOT available");
-      // mapDidMove(map);
-    }
-  }
 
   return (
     <>
@@ -119,7 +100,7 @@ export default function Home() {
           <h1>Leaflet test</h1>
           {mapCenterLatLong && <Coordinates latLong={mapCenterLatLong} centerMap={centerMapOn} />}
         </div>
-        <Map centerMapOnCurrentPosition={centerMapOnCurrentPosition} />
+        <Map />
       </div>
     </>
   );

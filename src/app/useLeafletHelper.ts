@@ -99,12 +99,13 @@ export function useLeafletHelper() {
             mapDidMove(map);
         });
 
-        function mapDidMove(map: LeafletMap) {
-            const center = map.getCenter();
-            onMove(center);
-        }
+        centerMapOnCurrentPosition();
     }
 
+    function mapDidMove(map: LeafletMap) {
+        const center = map.getCenter();
+        onMove(center);
+    }
 
     function onMove(toLatLong: LatLngLiteral) {
         setMapCenterLatLong(toLatLong);
@@ -118,9 +119,42 @@ export function useLeafletHelper() {
         }
     }
 
+    function centerMapOnCurrentPosition(onError?: ((error: string) => void)) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API
+        if ("geolocation" in navigator) {
+            /* geolocation is available */
+            console.log("Geolocation is available");
+            navigator.geolocation.getCurrentPosition(function (position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                console.log("Current position:", lat, lng);
+
+                centerMapOn({ lat, lng });
+            }, function (error) {
+                console.error("Error getting geolocation:", error);
+                onError?.(error.message);
+                if (mapRef.current) {
+                    mapDidMove(mapRef.current);
+                } else {
+                    console.log("mapRef.current is null");
+                }
+            });
+        } else {
+            /* geolocation IS NOT available */
+            console.log("Geolocation is NOT available");
+            onError?.("Geolocation is not available in your browser.");
+            if (mapRef.current) {
+                mapDidMove(mapRef.current);
+            }
+        }
+    }
+
     return {
+        mapRef,
         mapCenterLatLong,
         initMap,
-        centerMapOn
+        mapDidMove,
+        centerMapOn,
+        centerMapOnCurrentPosition
     }
 }
