@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, InputAdornment } from '@mui/material';
+import { Alert, Button, InputAdornment } from '@mui/material';
 import { ExploreOutlined } from '@mui/icons-material';
 import TextField from '@mui/material/TextField';
 import type { LatLngLiteral } from 'leaflet';
@@ -10,7 +10,8 @@ import { useLeafletHelper } from './useLeafletHelper';
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
 
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AlertsContext } from './AlertsContexts';
 
 
 const COORDINATES_PRECISION = 1000000;
@@ -74,24 +75,49 @@ function Map() {
 
   const { centerMapOnCurrentPosition } = useLeafletHelper();
 
+  const { addError } = useContext(AlertsContext);
+
+  // Code more explicit than passing `centerMapOnCurrentPosition.bind(null, undefined)` to onClick in order to satisfy eslint
+  function handleClick() {
+    centerMapOnCurrentPosition(addError);
+  }
+
   return (
     <div style={{ position: "relative", flexGrow: 1 }}>
       <div id="map" style={{ width: "100%", height: "100%" }}></div>
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 500, display: "flex", gap: "1em", padding: "1em", justifyContent: "center" }}>
-        <Button variant="contained" startIcon={<ExploreOutlined />} onClick={centerMapOnCurrentPosition}>GPS</Button>
+        <Button variant="contained" startIcon={<ExploreOutlined />} onClick={handleClick}>GPS</Button>
       </div>
     </div>
   )
 }
 
+export function AlertList() {
+
+  const { alerts, removeAlert } = useContext(AlertsContext);
+
+  return (
+    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 500, padding: "1em", display: "flex", flexDirection: "column", gap: "1em", alignItems: "center" }}>
+      {alerts.map((alert) => (
+        <Alert
+          key={alert.id} variant="filled" severity={alert.severity}
+          onClose={() => { removeAlert(alert.id); }}>
+          {alert.message}
+        </Alert>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
 
-  const { mapRef, mapCenterLatLong, initMap, mapDidMove, centerMapOn } = useLeafletHelper();
+  const { mapCenterLatLong, initMap, centerMapOn } = useLeafletHelper();
+
+  const { addError } = useContext(AlertsContext);
 
   useEffect(() => {
-    initMap();
-  }, []);
-
+    initMap(addError);
+  }, [initMap, addError]);
 
   return (
     <>
@@ -102,6 +128,7 @@ export default function Home() {
         </div>
         <Map />
       </div>
+      <AlertList />
     </>
   );
 }

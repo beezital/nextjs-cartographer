@@ -1,10 +1,13 @@
 "use client";
 
-import type { Metadata } from "next";
+// import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { AlertsProvider } from "./AlertsContexts";
+import { MapRefProvider } from "./MapRefContext";
 
+// https://mui.com/material-ui/customization/dark-mode/
 const theme = createTheme({
   colorSchemes: {
     dark: true,
@@ -36,7 +39,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider theme={theme}>
-          {children}
+          <AlertsProvider>
+            <MapRefProvider>
+              {children}
+            </MapRefProvider>
+          </AlertsProvider>
         </ThemeProvider>
       </body>
     </html>
