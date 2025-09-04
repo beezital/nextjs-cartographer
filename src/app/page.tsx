@@ -10,13 +10,6 @@ import 'leaflet/dist/leaflet.css';
 
 import { useEffect, useRef, useState } from "react";
 
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-
-const theme = createTheme({
-  colorSchemes: {
-    dark: true,
-  },
-});
 
 const COORDINATES_PRECISION = 1000000;
 
@@ -230,15 +223,13 @@ export default function Home() {
 
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1em", padding: "1em" }}>
-            <h1>Leaflet test</h1>
-            {latLong && <Coordinates latLong={latLong} centerMap={centerMap} />}
-          </div>
-          <Map />
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1em", padding: "1em" }}>
+          <h1>Leaflet test</h1>
+          {latLong && <Coordinates latLong={latLong} centerMap={centerMap} />}
         </div>
-      </ThemeProvider>
+        <Map />
+      </div>
     </>
   );
 }
