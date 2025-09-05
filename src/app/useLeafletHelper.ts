@@ -68,7 +68,7 @@ export function useLeafletHelper() {
                 } else {
                     console.log("mapRef.current is null");
                 }
-            });
+            }, { enableHighAccuracy: true});
         } else {
             /* geolocation IS NOT available */
             console.log("Geolocation is NOT available");
