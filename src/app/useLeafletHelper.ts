@@ -5,7 +5,7 @@ import { LeafletMapContext } from './LeafletMapContext';
 export function useLeafletHelper() {
 
 
-    const { leafletMapRef, setMapCenterLatLong } = useContext(LeafletMapContext);
+    const { leafletMapRef, currentLocationMarkerRef, targetLocationMarkerRef, setMapCenterLatLong } = useContext(LeafletMapContext);
 
     const onMove = useCallback((toLatLong: LatLngLiteral) => {
         setMapCenterLatLong(toLatLong);
@@ -16,6 +16,16 @@ export function useLeafletHelper() {
         onMove(center);
     }, [onMove]);
 
+
+    const showTargetLocationMarkerAt = useCallback((latLong: LatLngLiteral) => {
+        console.log("showTargetLocationMarkerAt:", latLong);
+        if (targetLocationMarkerRef.current && leafletMapRef.current) {
+            targetLocationMarkerRef.current.setLatLng([latLong.lat, latLong.lng]);
+            targetLocationMarkerRef.current.addTo(leafletMapRef.current!);
+        }
+    }, [targetLocationMarkerRef, leafletMapRef]);
+
+
     const centerMapOn = useCallback((latLong: LatLngLiteral) => {
         console.log("New center:", latLong);
         if (leafletMapRef.current) {
@@ -23,6 +33,15 @@ export function useLeafletHelper() {
             setMapCenterLatLong(latLong);
         }
     }, [leafletMapRef, setMapCenterLatLong]);
+
+
+    const showCurrentLocationMarkerAt = useCallback((latLong: LatLngLiteral) => {
+        console.log("showCurrentLocationMarkerAt:", latLong);
+        if (currentLocationMarkerRef.current && leafletMapRef.current) {
+            currentLocationMarkerRef.current.setLatLng([latLong.lat, latLong.lng]);
+            currentLocationMarkerRef.current.addTo(leafletMapRef.current!);
+        }
+    }, [currentLocationMarkerRef, leafletMapRef]);
 
 
     const centerMapOnCurrentPosition = useCallback((onError: ((error: string) => void) = () => { }) => {
@@ -35,10 +54,15 @@ export function useLeafletHelper() {
                 const lng = position.coords.longitude;
                 console.log("Current position:", lat, lng);
 
+                showCurrentLocationMarkerAt({ lat, lng });
+
                 centerMapOn({ lat, lng });
             }, function (error) {
                 console.warn("Error getting geolocation:", error);
                 onError(error.message);
+                if (currentLocationMarkerRef.current && leafletMapRef.current) {
+                    currentLocationMarkerRef.current.removeFrom(leafletMapRef.current!);
+                }
                 if (leafletMapRef.current) {
                     mapDidMove(leafletMapRef.current);
                 } else {
@@ -49,11 +73,14 @@ export function useLeafletHelper() {
             /* geolocation IS NOT available */
             console.log("Geolocation is NOT available");
             onError("Geolocation is not available in your browser.");
+            if (currentLocationMarkerRef.current && leafletMapRef.current) {
+                currentLocationMarkerRef.current.removeFrom(leafletMapRef.current!);
+            }
             if (leafletMapRef.current) {
                 mapDidMove(leafletMapRef.current);
             }
         }
-    }, [mapDidMove, centerMapOn, leafletMapRef]);
+    }, [showCurrentLocationMarkerAt, centerMapOn, currentLocationMarkerRef, leafletMapRef, mapDidMove]);
 
     const initMap = useCallback(async (mapContainerDiv: HTMLDivElement, onError: ((error: string) => void) = () => { }) => {
         const L = (await import("leaflet")).default;
@@ -129,6 +156,22 @@ export function useLeafletHelper() {
         });
         leafletMapRef.current = map;
 
+        // prepare currentLocation marker
+        const currentLocationIcon = L.icon({
+            iconUrl: 'my_location_24dp_FF0000.svg',
+        });
+        const currentLocationMarker = L.marker([48.260022, 7.424172], { icon: currentLocationIcon });
+        currentLocationMarker.bindPopup("Current location");
+        currentLocationMarkerRef.current = currentLocationMarker;
+
+        // prepare targetLocation marker
+        const targetLocationIcon = L.icon({
+            iconUrl: 'gamepad_24dp_FF0000.svg',
+        });
+        const targetLocationMarker = L.marker([48.260022, 7.424172], { icon: targetLocationIcon });
+        targetLocationMarker.bindPopup("Target location");
+        targetLocationMarkerRef.current = targetLocationMarker;
+
         const baseMaps = {
             "IGNv2": layerIGNv2,
             "OpenStreetMap": layerOSM
@@ -147,12 +190,13 @@ export function useLeafletHelper() {
         });
 
         centerMapOnCurrentPosition(onError);
-    }, [centerMapOnCurrentPosition, mapDidMove, leafletMapRef]);
+    }, [leafletMapRef, currentLocationMarkerRef, targetLocationMarkerRef, centerMapOnCurrentPosition, mapDidMove]);
 
     return {
         initMap,
         mapDidMove,
         centerMapOn,
-        centerMapOnCurrentPosition
+        centerMapOnCurrentPosition,
+        showTargetLocationMarkerAt,
     }
 }

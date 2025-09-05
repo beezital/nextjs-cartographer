@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, Button, InputAdornment } from '@mui/material';
-import { ExploreOutlined } from '@mui/icons-material';
+import { Gamepad, MyLocation } from '@mui/icons-material';
 import TextField from '@mui/material/TextField';
 import type { LatLngLiteral } from 'leaflet';
 import { useLeafletHelper } from './useLeafletHelper';
@@ -21,7 +21,7 @@ const COORDINATES_PRECISION = 1000000;
 function Coordinates() {
 
   const { mapCenterLatLong } = useContext(LeafletMapContext);
-  const { centerMapOn } = useLeafletHelper();
+  const { centerMapOn, showTargetLocationMarkerAt } = useLeafletHelper();
 
   const [coordinates, setCoordinates] = useState("");
 
@@ -39,7 +39,7 @@ function Coordinates() {
     return Math.round(coord * COORDINATES_PRECISION) / COORDINATES_PRECISION;
   }
 
-  function go(formData: FormData) {
+  function show(formData: FormData) {
     console.log("Form submitted:", formData.keys().toArray());
     const newCoordinates = formData.get("coordinates")?.toString() || "";
     let [lat, lng] = newCoordinates.split(",").map(Number);
@@ -48,13 +48,15 @@ function Coordinates() {
       lat = roundCoordinate(lat);
       lng = roundCoordinate(lng);
       console.log("Parsed coordinates rounded:", lat, lng);
-      const center: LatLngLiteral = { lat, lng };
-      centerMapOn(center);
+      const targetLocation: LatLngLiteral = { lat, lng };
+
+      centerMapOn(targetLocation);
+      showTargetLocationMarkerAt(targetLocation);
     }
   }
 
   return (
-    <form action={go}>
+    <form action={show}>
       <TextField
         style={{ width: "100%" }}
         id='coordinates-input'
@@ -69,7 +71,7 @@ function Coordinates() {
         slotProps={{
           input: {
             endAdornment: <InputAdornment position="end">
-              <Button variant='contained' type='submit'>Go</Button>
+              <Button variant='contained' startIcon={<Gamepad />} type='submit'>Show</Button>
             </InputAdornment>
           }
         }}
@@ -113,7 +115,7 @@ function Map() {
     <div style={{ position: "relative", flexGrow: 1 }}>
       <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }}></div>
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 500, display: "flex", gap: "1em", padding: "1em", justifyContent: "center" }}>
-        <Button variant="contained" startIcon={<ExploreOutlined />} onClick={handleClick}>GPS</Button>
+        <Button variant="contained" startIcon={<MyLocation />} onClick={handleClick}>GPS</Button>
       </div>
     </div>
   )
