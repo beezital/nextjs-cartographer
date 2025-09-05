@@ -5,7 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { AlertsProvider } from "./AlertsContexts";
-import { MapRefProvider } from "./MapRefContext";
+import { LeafletMapProvider } from "./LeafletMapContext";
 
 // https://mui.com/material-ui/customization/dark-mode/
 const theme = createTheme({
@@ -40,9 +40,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider theme={theme}>
           <AlertsProvider>
-            <MapRefProvider>
+            <LeafletMapProvider>
               {children}
-            </MapRefProvider>
+            </LeafletMapProvider>
           </AlertsProvider>
         </ThemeProvider>
       </body>

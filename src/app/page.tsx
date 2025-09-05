@@ -5,6 +5,7 @@ import { ExploreOutlined } from '@mui/icons-material';
 import TextField from '@mui/material/TextField';
 import type { LatLngLiteral } from 'leaflet';
 import { useLeafletHelper } from './useLeafletHelper';
+import { LeafletMapContext } from './LeafletMapContext';
 
 
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
@@ -17,16 +18,22 @@ import { AlertsContext } from './AlertsContexts';
 const COORDINATES_PRECISION = 1000000;
 
 
-function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap: (latLong: LatLngLiteral) => void }) {
+function Coordinates() {
+
+  const { mapCenterLatLong } = useContext(LeafletMapContext);
+  const { centerMapOn } = useLeafletHelper();
 
   const [coordinates, setCoordinates] = useState("");
 
   useEffect(() => {
-    const lat = roundCoordinate(latLong.lat);
-    const lng = roundCoordinate(latLong.lng);
+    if (!mapCenterLatLong) {
+      return;
+    }
+    const lat = roundCoordinate(mapCenterLatLong.lat);
+    const lng = roundCoordinate(mapCenterLatLong.lng);
     const latLongString = `${lat}, ${lng}`;
     setCoordinates(latLongString);
-  }, [latLong]);
+  }, [mapCenterLatLong]);
 
   function roundCoordinate(coord: number) {
     return Math.round(coord * COORDINATES_PRECISION) / COORDINATES_PRECISION;
@@ -42,7 +49,7 @@ function Coordinates({ latLong, centerMap }: { latLong: LatLngLiteral, centerMap
       lng = roundCoordinate(lng);
       console.log("Parsed coordinates rounded:", lat, lng);
       const center: LatLngLiteral = { lat, lng };
-      centerMap(center);
+      centerMapOn(center);
     }
   }
 
@@ -131,14 +138,12 @@ function AlertList() {
 
 export default function Home() {
 
-  const { mapCenterLatLong, centerMapOn } = useLeafletHelper();
-
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1em", padding: "1em" }}>
           <h1>Leaflet test</h1>
-          {mapCenterLatLong && <Coordinates latLong={mapCenterLatLong} centerMap={centerMapOn} />}
+          <Coordinates />
         </div>
         <Map />
       </div>

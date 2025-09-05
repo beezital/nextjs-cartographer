@@ -1,16 +1,15 @@
 import type { LatLngLiteral, Map as LeafletMap } from 'leaflet';
-import { useCallback, useContext, useState } from 'react';
-import { MapRefContext } from './MapRefContext';
+import { useCallback, useContext } from 'react';
+import { LeafletMapContext } from './LeafletMapContext';
 
 export function useLeafletHelper() {
 
-    const [mapCenterLatLong, setMapCenterLatLong] = useState<LatLngLiteral | null>(null);
 
-    const mapRef = useContext(MapRefContext);
+    const { leafletMapRef, setMapCenterLatLong } = useContext(LeafletMapContext);
 
     const onMove = useCallback((toLatLong: LatLngLiteral) => {
         setMapCenterLatLong(toLatLong);
-    }, []);
+    }, [setMapCenterLatLong]);
 
     const mapDidMove = useCallback((map: LeafletMap) => {
         const center = map.getCenter();
@@ -19,11 +18,12 @@ export function useLeafletHelper() {
 
     const centerMapOn = useCallback((latLong: LatLngLiteral) => {
         console.log("New center:", latLong);
-        if (mapRef.current) {
-            mapRef.current.setView(latLong);
+        if (leafletMapRef.current) {
+            leafletMapRef.current.setView(latLong);
             setMapCenterLatLong(latLong);
         }
-    }, [mapRef]);
+    }, [leafletMapRef, setMapCenterLatLong]);
+
 
     const centerMapOnCurrentPosition = useCallback((onError: ((error: string) => void) = () => { }) => {
         // https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API
@@ -39,8 +39,8 @@ export function useLeafletHelper() {
             }, function (error) {
                 console.warn("Error getting geolocation:", error);
                 onError(error.message);
-                if (mapRef.current) {
-                    mapDidMove(mapRef.current);
+                if (leafletMapRef.current) {
+                    mapDidMove(leafletMapRef.current);
                 } else {
                     console.log("mapRef.current is null");
                 }
@@ -49,11 +49,11 @@ export function useLeafletHelper() {
             /* geolocation IS NOT available */
             console.log("Geolocation is NOT available");
             onError("Geolocation is not available in your browser.");
-            if (mapRef.current) {
-                mapDidMove(mapRef.current);
+            if (leafletMapRef.current) {
+                mapDidMove(leafletMapRef.current);
             }
         }
-    }, [mapDidMove, centerMapOn, mapRef]);
+    }, [mapDidMove, centerMapOn, leafletMapRef]);
 
     const initMap = useCallback(async (mapContainerDiv: HTMLDivElement, onError: ((error: string) => void) = () => { }) => {
         const L = (await import("leaflet")).default;
@@ -127,7 +127,7 @@ export function useLeafletHelper() {
             zoom: 13,
             layers: [layerIGNv2]
         });
-        mapRef.current = map;
+        leafletMapRef.current = map;
 
         const baseMaps = {
             "IGNv2": layerIGNv2,
@@ -147,11 +147,9 @@ export function useLeafletHelper() {
         });
 
         centerMapOnCurrentPosition(onError);
-    }, [centerMapOnCurrentPosition, mapDidMove, mapRef]);
+    }, [centerMapOnCurrentPosition, mapDidMove, leafletMapRef]);
 
     return {
-        mapRef,
-        mapCenterLatLong,
         initMap,
         mapDidMove,
         centerMapOn,
