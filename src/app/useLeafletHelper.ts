@@ -123,7 +123,7 @@ export function useLeafletHelper() {
         );
 
         const map = L.map(mapContainerDiv, {
-            center: [48.26, 7.45],
+            center: [48.260022, 7.424172],
             zoom: 13,
             layers: [layerIGNv2]
         });
