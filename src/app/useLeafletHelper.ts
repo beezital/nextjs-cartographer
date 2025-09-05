@@ -52,7 +52,7 @@ export function useLeafletHelper() {
             navigator.geolocation.getCurrentPosition(function (position) {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
-                console.log("Current position:", lat, lng);
+                console.log("Current position:", position);
 
                 showCurrentLocationMarkerAt({ lat, lng });
 
