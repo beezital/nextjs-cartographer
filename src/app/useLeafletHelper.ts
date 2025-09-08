@@ -7,16 +7,20 @@ export function useLeafletHelper() {
 
     const { leafletMapRef, currentLocationMarkerRef, targetLocationMarkerRef, setMapCenterLatLong } = useContext(LeafletMapContext);
 
-    const onMove = useCallback((toLatLong: LatLngLiteral) => {
-        setMapCenterLatLong(toLatLong);
-    }, [setMapCenterLatLong]);
-
+    /**
+     * Handles the map's 'move' event to update the center coordinates in the context.
+     */
     const mapDidMove = useCallback((map: LeafletMap) => {
         const center = map.getCenter();
-        onMove(center);
-    }, [onMove]);
+        setMapCenterLatLong(center);
+    }, [setMapCenterLatLong]);
 
 
+    /**
+     * Displays the target location marker at the specified latitude and longitude.
+     * If the marker is already on the map, it updates its position.
+     * @param latLong The latitude and longitude where the target location marker should be shown.
+     */
     const showTargetLocationMarkerAt = useCallback((latLong: LatLngLiteral) => {
         console.log("showTargetLocationMarkerAt:", latLong);
         if (targetLocationMarkerRef.current && leafletMapRef.current) {
@@ -26,6 +30,10 @@ export function useLeafletHelper() {
     }, [targetLocationMarkerRef, leafletMapRef]);
 
 
+    /**
+     * Centers the map on the specified latitude and longitude.
+     * @param latLong The latitude and longitude to center the map on.
+     */
     const centerMapOn = useCallback((latLong: LatLngLiteral) => {
         console.log("New center:", latLong);
         if (leafletMapRef.current) {
@@ -35,6 +43,11 @@ export function useLeafletHelper() {
     }, [leafletMapRef, setMapCenterLatLong]);
 
 
+    /**
+     * Displays the current location marker at the specified latitude and longitude.
+     * If the marker is already on the map, it updates its position.
+     * @param latLong The latitude and longitude where the current location marker should be shown.
+     */
     const showCurrentLocationMarkerAt = useCallback((latLong: LatLngLiteral) => {
         console.log("showCurrentLocationMarkerAt:", latLong);
         if (currentLocationMarkerRef.current && leafletMapRef.current) {
@@ -44,6 +57,11 @@ export function useLeafletHelper() {
     }, [currentLocationMarkerRef, leafletMapRef]);
 
 
+    /**
+     * Centers the map on the user's current geolocation, if available.
+     * If geolocation is not available or an error occurs, the map remains unchanged.
+     * @param onError Optional callback to handle errors (e.g., display an alert).
+     */
     const centerMapOnCurrentPosition = useCallback((onError: ((error: string) => void) = () => { }) => {
         // https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API
         if ("geolocation" in navigator) {
@@ -82,7 +100,13 @@ export function useLeafletHelper() {
         }
     }, [showCurrentLocationMarkerAt, centerMapOn, currentLocationMarkerRef, leafletMapRef, mapDidMove]);
 
-    const initMap = useCallback(async (mapContainerDiv: HTMLDivElement, onError: ((error: string) => void) = () => { }) => {
+    
+    /**
+     * Initializes the Leaflet map in the given container div.
+     * @param mapContainerDiv The HTMLDivElement to contain the map.
+     * @param onError Callback to handle errors.
+     */
+    const initMap = useCallback(async (mapContainerDiv: HTMLDivElement, onError: ((error: string) => void)) => {
         const L = (await import("leaflet")).default;
 
         const layerOSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -172,6 +196,7 @@ export function useLeafletHelper() {
         targetLocationMarker.bindPopup("Target location");
         targetLocationMarkerRef.current = targetLocationMarker;
 
+        // Prepare the layer control
         const baseMaps = {
             "IGNv2": layerIGNv2,
             "OpenStreetMap": layerOSM
@@ -185,6 +210,7 @@ export function useLeafletHelper() {
         const layerControl = L.control.layers(baseMaps, overlayMaps);
         layerControl.addTo(map);
 
+        // Add the event listener for map movements
         map.on('move', function () {
             mapDidMove(map);
         });

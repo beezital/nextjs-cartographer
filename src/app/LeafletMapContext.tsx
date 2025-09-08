@@ -1,7 +1,12 @@
 import { createContext, RefObject, useRef, useState } from "react";
 import type { LatLngLiteral, Map as LeafletMap, Marker } from 'leaflet';
 
-
+/**
+ * Context to share following model data across the app:
+ * - a reference to the Leaflet map object
+ * - references to marker objects (current location, target location)
+ * - location states
+ */
 export const LeafletMapContext = createContext<{
     leafletMapRef: RefObject<LeafletMap | null>;
     currentLocationMarkerRef: RefObject<Marker | null>;
