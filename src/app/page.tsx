@@ -2,7 +2,7 @@
 
 import Coordinates from '@/components/Coordinates/Coordinates';
 import AlertList from '@/components/AlertList/AlertList';
-import LeafletMap from '@/components/LeafletMap/LeafletMap';
+import Map from '@/components/Map/Map';
 
 
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
           <h1>Leaflet test</h1>
           <Coordinates />
         </div>
-        <LeafletMap />
+        <Map />
       </div>
       <AlertList />
     </>

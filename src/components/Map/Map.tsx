@@ -7,7 +7,7 @@ import { useContext, useEffect, useRef } from "react";
 // https://github.com/PaulLeCam/react-leaflet/issues/1108#issuecomment-1806743358
 import 'leaflet/dist/leaflet.css';
 
-import styles from './LeafletMap.module.css';
+import styles from './Map.module.css';
 
 
 export default function LeafletMap() {
