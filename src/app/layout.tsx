@@ -4,8 +4,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { AlertsProvider } from "./AlertsContexts";
-import { LeafletMapProvider } from "./LeafletMapContext";
+import { AlertsProvider } from "../contexts/AlertsContexts";
+import { LeafletMapProvider } from "../contexts/LeafletMapContext";
 
 // https://mui.com/material-ui/customization/dark-mode/
 const theme = createTheme({

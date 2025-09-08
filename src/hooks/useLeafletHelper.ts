@@ -1,6 +1,6 @@
 import type { LatLngLiteral, Map as LeafletMap } from 'leaflet';
 import { useCallback, useContext } from 'react';
-import { LeafletMapContext } from './LeafletMapContext';
+import { LeafletMapContext } from '../contexts/LeafletMapContext';
 
 export function useLeafletHelper() {
 
@@ -100,7 +100,7 @@ export function useLeafletHelper() {
         }
     }, [showCurrentLocationMarkerAt, centerMapOn, currentLocationMarkerRef, leafletMapRef, mapDidMove]);
 
-    
+
     /**
      * Initializes the Leaflet map in the given container div.
      * @param mapContainerDiv The HTMLDivElement to contain the map.
