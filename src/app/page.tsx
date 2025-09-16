@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppBar, Button, IconButton, Menu, MenuItem, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import { Menu as MenuIcon } from "@mui/icons-material";
 import Coordinates from '@/components/Coordinates/Coordinates';
@@ -12,13 +12,31 @@ import { AccountCircle } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
+type Preferences = {
+  isDrawerOpen: boolean;
+}
 
 export default function Home() {
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>();
   const isDesktop = useMediaQuery('(min-width:600px)'); // https://www.browserstack.com/guide/responsive-design-breakpoints
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [auth, setAuth] = useState(true);
+  const [preferences, setPreferences] = useState<Preferences>();
+
+
+  function loadPreferences(): Preferences {
+    const prefsString = localStorage.getItem("preferences");
+    if (prefsString) {
+      try {
+        const prefs = JSON.parse(prefsString) as Preferences;
+        return prefs;
+      } catch (e) {
+        console.error("Could not parse preferences from localStorage", e);
+      }
+    }
+    return { isDrawerOpen: true };
+  }
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -38,6 +56,21 @@ export default function Home() {
     handleClose();
   }
 
+  useEffect(() => {
+    const prefs = loadPreferences();
+    setPreferences(prefs);
+    setIsDrawerOpen(prefs.isDrawerOpen);
+  }, []);
+
+
+function toggleDrawer() {
+    const newIsDrawerOpen = !isDrawerOpen;
+    setIsDrawerOpen(newIsDrawerOpen);
+    const newPreferences = { ...preferences, isDrawerOpen: newIsDrawerOpen };
+    setPreferences(newPreferences);
+    localStorage.setItem("preferences", JSON.stringify(newPreferences));
+  }
+
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
@@ -50,7 +83,7 @@ export default function Home() {
               aria-label="menu"
               sx={{ mr: 2 }}
             >
-              <MenuIcon onClick={() => setIsDrawerOpen(!isDrawerOpen)} />
+              <MenuIcon onClick={toggleDrawer} />
             </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               beeziMap
@@ -91,7 +124,7 @@ export default function Home() {
           </Toolbar>
         </AppBar>
         <div style={{ display: "flex", flexDirection: "row", flexGrow: 1, alignItems: "stretch" }}>
-          <div className={styles.drawerOverlay} style={{ display: !isDesktop && isDrawerOpen ? "block" : "none" }} onClick={() => setIsDrawerOpen(false)}></div>
+          <div className={styles.drawerOverlay} style={{ display: !isDesktop && isDrawerOpen ? "block" : "none" }} onClick={toggleDrawer}></div>
           <div className={styles.drawer} style={{ width: drawerWidth, marginLeft: isDrawerOpen ? 0 : -drawerWidth }}>
             <span>App Navigation Drawer</span>
           </div>
