@@ -44,7 +44,7 @@ export default function LeafletMap() {
     <div className={styles.leafletMap}>
       <div ref={mapContainerRef} className={styles.mapContainer}></div>
       <div className={styles.mapOverlay}>
-        <Button variant="contained" startIcon={<MyLocation />} onClick={handleClick}>GPS</Button>
+        <Button variant="contained" disableElevation startIcon={<MyLocation />} onClick={handleClick}>GPS</Button>
       </div>
     </div>
   )
