@@ -1,12 +1,11 @@
 .header {
   height: var(--header-height);
-  width: 100%;
-  background-color: cornflowerblue;
-  z-index: 1300;
 }
 
 .drawer {
-  position: relative;
+  position: fixed;
+  top: var(--header-height);
+  bottom: 0;
   transition: margin-left 0.3s ease-in-out;
   padding: 1em;
   background-color: var(--background);
@@ -14,11 +13,10 @@
   border-right: 1px solid var(--drawer-border-color);
 }
 
-@media (max-width: 768px) {
+@media (min-width: 600px) {
   .drawer {
-    position: fixed;
-    top: var(--header-height);
-    bottom: 0;
+    position: relative;
+    top: 0;
   }
 }
 
@@ -32,12 +30,12 @@
   bottom: 0;
   left: 0;
   right: 0;
-  display: none;
+  display: block;
 }
 
 
-@media (max-width: 768px) {
+@media (min-width: 600px) {
   .drawerOverlay {
-    display: block;
+    display: none;
   }
 }

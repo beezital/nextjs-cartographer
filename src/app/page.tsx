@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from 'react';
-import { useMediaQuery } from '@mui/material';
+import { AppBar, Button, IconButton, Menu, MenuItem, Toolbar, Typography, useMediaQuery } from '@mui/material';
+import { Menu as MenuIcon } from "@mui/icons-material";
 import Coordinates from '@/components/Coordinates/Coordinates';
 import AlertList from '@/components/AlertList/AlertList';
 import Map from '@/components/Map/Map';
 
 import styles from './page.module.css';
+import { AccountCircle } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -14,16 +16,82 @@ const drawerWidth = 240;
 export default function Home() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-  const isMobile = useMediaQuery('(max-width:768px)'); // https://www.browserstack.com/guide/responsive-design-breakpoints
-  
+  const isDesktop = useMediaQuery('(min-width:600px)'); // https://www.browserstack.com/guide/responsive-design-breakpoints
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [auth, setAuth] = useState(true);
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  function logout() {
+    setAuth(false);
+    handleClose();
+  }
+
+  function login() {
+    setAuth(true);
+    handleClose();
+  }
+
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-        <div className={styles.header} onClick={() => setIsDrawerOpen(!isDrawerOpen)}>
-          <span>App Header</span>
-        </div>
+        <AppBar position="relative" >
+          <Toolbar>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon onClick={() => setIsDrawerOpen(!isDrawerOpen)} />
+            </IconButton>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              beeziMap
+            </Typography>
+            {auth ? (
+              <div>
+                <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleMenu}
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={logout}>Logout</MenuItem>
+                </Menu>
+              </div>
+            ) : (
+              <Button color="inherit" onClick={login} >Login</Button>
+            )}
+          </Toolbar>
+        </AppBar>
         <div style={{ display: "flex", flexDirection: "row", flexGrow: 1, alignItems: "stretch" }}>
-          <div className={styles.drawerOverlay} style={{ display: isMobile && isDrawerOpen ? "block" : "none" }} onClick={() => setIsDrawerOpen(false)}></div>
+          <div className={styles.drawerOverlay} style={{ display: !isDesktop && isDrawerOpen ? "block" : "none" }} onClick={() => setIsDrawerOpen(false)}></div>
           <div className={styles.drawer} style={{ width: drawerWidth, marginLeft: isDrawerOpen ? 0 : -drawerWidth }}>
             <span>App Navigation Drawer</span>
           </div>

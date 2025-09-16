@@ -2,15 +2,22 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  --header-height: 50px;
+  --header-height: 56px;
   --drawer-border-color: #e0e0e0;
 }
+
+@media (min-width: 600px) {
+  :root {
+    --header-height: 64px;
+  }
+}
+
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    
+
     --drawer-border-color: #4f4f4f;
   }
 }
