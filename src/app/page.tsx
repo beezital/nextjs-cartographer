@@ -74,7 +74,7 @@ function toggleDrawer() {
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-        <AppBar position="relative" >
+        <AppBar position="relative" sx={{ zIndex: 1201 }}>
           <Toolbar>
             <IconButton
               size="large"
