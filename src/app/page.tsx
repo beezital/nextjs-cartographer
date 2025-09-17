@@ -29,8 +29,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-const provider = new GoogleAuthProvider();
-provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 
 const drawerWidth = 240;
@@ -71,40 +72,12 @@ export default function Home() {
 
   function logout() {
     handleClose();
-    signOut(auth).then(() => {
-      // Sign-out successful.
-      setUser(null);
-    }).catch((error) => {
-      // An error happened.
-    });
+    signOut(auth)
   }
 
   function login() {
     // https://firebase.google.com/docs/auth/web/google-signin
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        /*
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
-        */
-      }).catch((error) => {
-        console.error("Login error", error);
-        /*
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-        */
-      });
+    signInWithPopup(auth, googleProvider)
   }
 
   useEffect(() => {
@@ -158,12 +131,34 @@ export default function Home() {
             </Typography>
             {user ? (
               <div>
-                <Button variant="contained" disableElevation startIcon={<AccountCircle />} onClick={handleMenu}>{user.displayName}</Button>
+                {isDesktop ? (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    disableElevation
+                    startIcon={<AccountCircle />}
+                    onClick={handleMenu}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    {user.displayName}
+                  </Button>
+                ) : (
+                  <IconButton
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={handleMenu}
+                    color="inherit"
+                  >
+                    <AccountCircle />
+                  </IconButton>
+                )}
                 <Menu
                   id="menu-appbar"
                   anchorEl={anchorEl}
                   anchorOrigin={{
-                    vertical: 'top',
+                    vertical: 'bottom',
                     horizontal: 'right',
                   }}
                   keepMounted
@@ -174,6 +169,7 @@ export default function Home() {
                   open={Boolean(anchorEl)}
                   onClose={handleClose}
                 >
+                  <MenuItem disabled>{user.displayName}</MenuItem>
                   <MenuItem onClick={logout}>Logout</MenuItem>
                 </Menu>
               </div>
