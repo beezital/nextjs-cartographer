@@ -37,6 +37,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <title>BeeziMap</title>
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider theme={theme}>
           <AlertsProvider>

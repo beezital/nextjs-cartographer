@@ -114,7 +114,7 @@ export default function Home() {
 
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <AppBar position="relative" sx={{ zIndex: 1201 }}>
           <Toolbar>
             <IconButton

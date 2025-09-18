@@ -3,7 +3,7 @@
 }
 
 .drawer {
-  position: fixed;
+  position: absolute;
   top: var(--header-height);
   bottom: 0;
   transition: margin-left 0.3s ease-in-out;
@@ -25,7 +25,7 @@
   z-index: 1100;
   transition: opacity 0.3s ease-in-out;
   opacity: 0.5;
-  position: fixed;
+  position: absolute;
   top: var(--header-height);
   bottom: 0;
   left: 0;
