@@ -4,8 +4,11 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { AlertsProvider } from "../contexts/AlertsContext";
-import { LeafletMapProvider } from "../contexts/LeafletMapContext";
+import { auth } from "@/lib/firebase";
+import { AlertsProvider } from "@/contexts/AlertsContext";
+import { LeafletMapProvider } from "@/contexts/LeafletMapContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+
 
 // https://mui.com/material-ui/customization/dark-mode/
 const theme = createTheme({
@@ -41,13 +44,15 @@ export default function RootLayout({
         <title>BeeziMap</title>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ThemeProvider theme={theme}>
-          <AlertsProvider>
-            <LeafletMapProvider>
-              {children}
-            </LeafletMapProvider>
-          </AlertsProvider>
-        </ThemeProvider>
+        <AuthProvider auth={auth}>
+          <ThemeProvider theme={theme}>
+            <AlertsProvider>
+              <LeafletMapProvider>
+                {children}
+              </LeafletMapProvider>
+            </AlertsProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
