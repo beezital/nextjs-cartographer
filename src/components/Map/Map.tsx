@@ -1,4 +1,4 @@
-import { AlertsContext } from "@/contexts/AlertsContexts";
+import { AlertsContext } from "@/contexts/AlertsContext";
 import { useLeafletHelper } from "@/hooks/useLeafletHelper";
 import { MyLocation } from "@mui/icons-material";
 import { Button } from "@mui/material";

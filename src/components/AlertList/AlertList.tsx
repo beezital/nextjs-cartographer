@@ -1,4 +1,4 @@
-import { AlertsContext } from "@/contexts/AlertsContexts";
+import { AlertsContext } from "@/contexts/AlertsContext";
 import { useContext } from "react";
 import { Alert } from '@mui/material';
 
