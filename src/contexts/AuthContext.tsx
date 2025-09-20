@@ -34,14 +34,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithPopup(auth, googleProvider)
   }
 
-  const updatePrivileges = useCallback((claims: Record<string, unknown> | null) =>  {
-    setCanCreateGroup(claims != null); // FIXME: see TODO below
-    // TODO:
-    // if (claims) {
-    //   if (claims["subscription"] === "test") {
-    //     setCanCreateGroup(true);
-    //   }
-    // }
+  const updatePrivileges = useCallback((claims: Record<string, unknown> | null) => {
+    if (claims) {
+      switch (claims["subscription"]) {
+        case "test":
+        case "paid":
+          setCanCreateGroup(true);
+          return;
+      }
+    }
+    setCanCreateGroup(false);
   }, []);
 
   useEffect(() => {
