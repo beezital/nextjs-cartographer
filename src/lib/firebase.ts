@@ -33,7 +33,10 @@ function getClientMessaging() {
 
 function requestPermission() {
   // Add client-side check (thx Claude Sonnet 4)
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined' || typeof Notification === 'undefined') {
+    console.log("requestPermission: window or Notification is undefined");
+    return null;
+  }
 
   console.log('Requesting permission...');
   Notification.requestPermission().then((permission) => {
