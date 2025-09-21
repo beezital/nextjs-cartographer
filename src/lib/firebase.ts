@@ -1,5 +1,3 @@
-"use client";
-
 // https://firebase.google.com/docs/web/setup
 // https://stackoverflow.com/questions/48492047/where-do-i-initialize-firebase-app-in-react-application (to confirm copilot suggestion)
 
@@ -21,11 +19,22 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const messaging = getMessaging(app);
 
 const vapidKey = process.env.NEXT_PUBLIC_VAPID || "";
 
+function getClientMessaging() {
+  // Lazy initialization (thx Claude Sonnet 4)
+  if (typeof window !== 'undefined') {
+    return getMessaging(app);
+  }
+  console.log("getClientMessaging: window is undefined");
+  return null;
+}
+
 function requestPermission() {
+  // Add client-side check (thx Claude Sonnet 4)
+  if (typeof window === 'undefined') return null;
+
   console.log('Requesting permission...');
   Notification.requestPermission().then((permission) => {
     if (permission === 'granted') {
@@ -40,7 +49,13 @@ function requestPermission() {
 }
 
 async function getMessagingToken(): Promise<string | null> {
+  // Add client-side check (thx Claude Sonnet 4)
+  if (typeof window === 'undefined') return null;
+
   try {
+    const messaging = getClientMessaging();
+    if (!messaging) return null;
+
     const currentToken = await getToken(messaging, { vapidKey });
     if (currentToken) {
       console.log('current token for client: ', currentToken);
