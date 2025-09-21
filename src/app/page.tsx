@@ -9,9 +9,7 @@ import AlertList from '@/components/AlertList/AlertList';
 import Map from '@/components/Map/Map';
 import UserMenu from '@/components/UserMenu/UserMenu';
 
-import styles from './page.module.css';
-
-
+import { requestPermission } from '@/lib/firebase';
 
 type Preferences = {
   isDrawerOpen: boolean;
@@ -40,6 +38,8 @@ export default function Home() {
     const prefs = loadPreferences();
     setPreferences(prefs);
     setIsDrawerOpen(prefs.isDrawerOpen);
+    requestPermission();
+    console.log("process.env.NEXT_PUBLIC_VAPID", process.env.NEXT_PUBLIC_VAPID);
   }, []);
 
   function toggleDrawer() {

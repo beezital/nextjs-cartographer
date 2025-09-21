@@ -1,9 +1,12 @@
+"use client";
+
 // https://firebase.google.com/docs/web/setup
 // https://stackoverflow.com/questions/48492047/where-do-i-initialize-firebase-app-in-react-application (to confirm copilot suggestion)
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { MessagePayload, deleteToken, getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,5 +21,41 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const messaging = getMessaging(app);
 
-export { app, auth };
+const vapidKey = process.env.NEXT_PUBLIC_VAPID || "";
+
+function requestPermission() {
+  console.log('Requesting permission...');
+  Notification.requestPermission().then((permission) => {
+    if (permission === 'granted') {
+      console.log('Notification permission granted.');
+      // TODO(developer): Retrieve a registration token for use with FCM.
+      // In many cases once an app has been granted notification permission,
+      // it should update its UI reflecting this.
+    } else {
+      console.log('Unable to get permission to notify.');
+    }
+  });
+}
+
+async function getMessagingToken(): Promise<string | null> {
+  try {
+    const currentToken = await getToken(messaging, { vapidKey });
+    if (currentToken) {
+      console.log('current token for client: ', currentToken);
+      return currentToken;
+    } else {
+      // Show permission request.
+      console.log('No registration token available. Request permission to generate one.');
+      // Show permission UI.
+      return null;
+    }
+  } catch (err) {
+    console.log('An error occurred while retrieving token. ', err);
+    return null;
+  }
+}
+
+
+export { app, auth, requestPermission, getMessagingToken };

@@ -1,7 +1,8 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { useMediaQuery } from '@mui/material';
 import { AuthContext } from '@/contexts/AuthContext';
 import styles from './NavigationDrawer.module.css';
+import { getMessagingToken } from '@/lib/firebase';
 
 const drawerWidth = 240;
 
@@ -9,6 +10,10 @@ export default function NavigationDrawer({ isDrawerOpen, toggleDrawer }: { isDra
 
   const isDesktop = useMediaQuery('(min-width:600px)'); // https://www.browserstack.com/guide/responsive-design-breakpoints
   const { canCreateGroup } = useContext(AuthContext);
+
+  useEffect(() => {
+    getMessagingToken();
+  }, []);
   
   return (
     <>
